@@ -1,0 +1,17 @@
+# Avhengigheter og bygg
+node_modules/
+.next/
+.sanity/
+dist/
+.vercel/
+
+# Hemmeligheter: aldri sjekk inn. Eksempelfilen er den eneste som skal med.
+.env
+.env.*
+!.env.example
+
+# Lokale verktøy og systemfiler
+.claude/
+.agents/
+.DS_Store
+*.log
