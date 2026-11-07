@@ -5,6 +5,7 @@ import {
   getDynamicFetchOptions,
   published,
 } from "@/sanity/live";
+import { seoMetadata } from "@/lib/seo";
 import { PAGE_QUERY } from "@/sanity/queries";
 import { Hero } from "./hero";
 import { Sections, type SectionsInput } from "./sections";
@@ -18,11 +19,17 @@ export async function pageMetadata(slug: string): Promise<Metadata> {
   const { data } = await getPublishedPage(slug);
   if (!data) return {};
   const title = data.seoTitle ?? data.title ?? undefined;
-  return {
+  const isHome = slug === "forside";
+  return seoMetadata({
+    title: isHome ? (title ?? "Hubro Digital") : title,
     // «Forside» skal bruke standardtittelen, ikke «Forside | Hubro Digital».
-    title: slug === "forside" ? { absolute: title ?? "Hubro Digital" } : title,
-    description: data.seoDescription ?? data.intro ?? undefined,
-  };
+    absoluteTitle: isHome,
+    description: data.seoDescription ?? data.intro,
+    path: isHome ? "/" : `/${slug}`,
+    image: data.seoImage,
+    fallbackImage: data.heroImage,
+    noIndex: data.noIndex,
+  });
 }
 
 // Rendrer en Side fra Sanity: toppseksjon + seksjoner i den rekkefølgen redaktøren har satt dem.

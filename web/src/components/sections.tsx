@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { stegaClean } from "next-sanity";
 import { casesEnabled } from "@/config/features";
+import { jsonLd } from "@/lib/seo";
 import { getSettings } from "@/sanity/data";
 import { urlFor } from "@/sanity/image";
 import type { PAGE_QUERY_RESULT } from "../../sanity.types";
@@ -643,8 +644,24 @@ function ClientsSection({ s }: { s: Of<"clientsSection"> }) {
 }
 
 function FaqSection({ s }: { s: Of<"faqSection"> }) {
+  // Strukturerte data lar Google (og AI-søk) vise spørsmål og svar direkte.
+  const faq = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: (s.items ?? [])
+      .filter((i) => i.question && i.answer)
+      .map((i) => ({
+        "@type": "Question",
+        name: stegaClean(i.question),
+        acceptedAnswer: { "@type": "Answer", text: stegaClean(i.answer) },
+      })),
+  };
+
   return (
     <section className="wrap grid gap-10 py-16 md:grid-cols-[1fr_1.6fr] md:gap-16 md:py-24">
+      {faq.mainEntity.length > 0 && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faq) }} />
+      )}
       <h2 className="text-headline">{s.heading}</h2>
       <div className="divide-y divide-ink/25 border-y border-ink/25">
         {s.items?.map((item) => (

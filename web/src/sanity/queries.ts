@@ -104,6 +104,9 @@ export const SERVICE_QUERY = defineQuery(`
     body,
     seoTitle,
     seoDescription,
+    seoImage{ asset },
+    noIndex,
+    _updatedAt,
     ${SECTIONS}
   }
 `);
@@ -134,6 +137,8 @@ export const PAGE_QUERY = defineQuery(`
     heroImage{ asset, alt },
     seoTitle,
     seoDescription,
+    seoImage{ asset },
+    noIndex,
     ${SECTIONS}
   }
 `);
@@ -151,7 +156,9 @@ export const CASE_QUERY = defineQuery(`
     body,
     quote{ text, author, role },
     seoTitle,
-    seoDescription
+    seoDescription,
+    seoImage{ asset },
+    noIndex
   }
 `);
 
@@ -203,6 +210,22 @@ export const ARTICLE_QUERY = defineQuery(`
       ${ARTICLE_CARD}
     },
     seoTitle,
-    seoDescription
+    seoDescription,
+    seoImage{ asset },
+    noIndex,
+    _updatedAt
   }
+`);
+
+// Alle sider som skal med i sitemap.xml. Sider merket «Skjul for søkemotorer» tas ikke med.
+export const SITEMAP_QUERY = defineQuery(`
+  *[_type in ["page", "service", "article", "case"] && defined(slug.current) && noIndex != true]{
+    _type,
+    "slug": slug.current,
+    "updatedAt": _updatedAt
+  }
+`);
+
+export const PACKAGES_QUERY = defineQuery(`
+  *[_type == "package"] | order(coalesce(order, 9999) asc){ _id, name }
 `);

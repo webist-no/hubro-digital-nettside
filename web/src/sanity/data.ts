@@ -1,5 +1,5 @@
 import { cachedSanity, published } from "./live";
-import { SERVICES_QUERY, SETTINGS_QUERY } from "./queries";
+import { PACKAGES_QUERY, SERVICES_QUERY, SETTINGS_QUERY } from "./queries";
 
 // Delt innhold hentes via cachedSanity (den ene 'use cache'-grensen).
 export async function getServices() {
@@ -9,5 +9,10 @@ export async function getServices() {
 
 export async function getSettings() {
   const { data } = await cachedSanity({ query: SETTINGS_QUERY, ...published });
+  return data;
+}
+
+export async function getPackages() {
+  const { data } = await cachedSanity({ query: PACKAGES_QUERY, ...published });
   return data;
 }

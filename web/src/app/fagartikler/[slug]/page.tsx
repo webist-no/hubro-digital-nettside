@@ -9,6 +9,8 @@ import { ArrowLink, ButtonLink } from "@/components/button-link";
 import { CtaBand } from "@/components/cta-band";
 import { toCard } from "@/sanity/articles";
 import { urlFor } from "@/sanity/image";
+import { siteUrl } from "@/config/features";
+import { jsonLd, seoMetadata } from "@/lib/seo";
 import { cachedSanity, getDynamicFetchOptions, published } from "@/sanity/live";
 import { ARTICLE_QUERY } from "@/sanity/queries";
 
@@ -16,18 +18,17 @@ export async function generateMetadata(props: PageProps<"/fagartikler/[slug]">):
   const { slug } = await props.params;
   const { data } = await cachedSanity({ query: ARTICLE_QUERY, params: { slug }, ...published });
   if (!data) return {};
-  const image = data.heroImage?.asset ? urlFor(data.heroImage).width(1200).height(630).url() : undefined;
-  return {
+  return seoMetadata({
     title: data.seoTitle ?? data.title,
     description: data.seoDescription ?? data.excerpt,
-    openGraph: {
-      type: "article",
-      title: data.seoTitle ?? data.title ?? undefined,
-      description: data.seoDescription ?? data.excerpt ?? undefined,
-      publishedTime: data.publishedAt ?? undefined,
-      images: image ? [image] : undefined,
-    },
-  };
+    path: `/fagartikler/${slug}`,
+    image: data.seoImage,
+    fallbackImage: data.heroImage,
+    noIndex: data.noIndex,
+    type: "article",
+    publishedTime: data.publishedAt,
+    modifiedTime: data._updatedAt,
+  });
 }
 
 export default function ArticlePage(props: PageProps<"/fagartikler/[slug]">) {
@@ -56,23 +57,33 @@ async function Article({ params }: { params: PageProps<"/fagartikler/[slug]">["p
   const related = (a.related ?? []).map(toCard);
 
   // Strukturerte data hjelper Google og AI-søk å forstå hvem som har skrevet hva og når.
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: a.title,
-    description: a.excerpt,
-    datePublished: a.publishedAt,
-    author: a.author?.name ? { "@type": "Person", name: a.author.name } : undefined,
-    publisher: { "@type": "Organization", name: "Hubro Digital" },
-    image: heroUrl ?? undefined,
-  };
+  const structured = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: a.title,
+      description: a.excerpt,
+      datePublished: a.publishedAt,
+      dateModified: a._updatedAt,
+      mainEntityOfPage: `${siteUrl}/fagartikler/${slug}`,
+      author: a.author?.name ? { "@type": "Person", name: a.author.name } : undefined,
+      publisher: { "@id": `${siteUrl}/#organisasjon` },
+      image: heroUrl ?? undefined,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Hjem", item: siteUrl },
+        { "@type": "ListItem", position: 2, name: "Fagartikler", item: `${siteUrl}/fagartikler` },
+        { "@type": "ListItem", position: 3, name: a.title, item: `${siteUrl}/fagartikler/${slug}` },
+      ],
+    },
+  ];
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structured) }} />
 
       <article className="bg-fog">
         <header className="wrap pb-12 pt-10 md:pb-16">

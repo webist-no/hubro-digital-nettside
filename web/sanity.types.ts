@@ -15,6 +15,21 @@
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
 // Source: schema.json
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+};
+
+export type SeoImage = {
+  asset?: SanityImageAssetReference;
+  media?: unknown; // Unable to locate the referenced type "seoImage.media" in schema
+  hotspot?: SanityImageHotspot;
+  crop?: SanityImageCrop;
+  _type: "image";
+};
+
 export type StatementSection = {
   _type: "statementSection";
   text?: string;
@@ -52,13 +67,6 @@ export type BenefitsSection = {
     _type: "benefit";
     _key: string;
   }>;
-};
-
-export type SanityImageAssetReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
 };
 
 export type SplitSection = {
@@ -473,6 +481,8 @@ export type Case = {
   order?: number;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: SeoImage;
+  noIndex?: boolean;
 };
 
 export type Slug = {
@@ -553,6 +563,8 @@ export type Article = {
   >;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: SeoImage;
+  noIndex?: boolean;
 };
 
 export type TeamMember = {
@@ -725,6 +737,8 @@ export type Service = {
   order?: number;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: SeoImage;
+  noIndex?: boolean;
 };
 
 export type Page = {
@@ -823,6 +837,8 @@ export type Page = {
   >;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: SeoImage;
+  noIndex?: boolean;
 };
 
 export type SanityImagePaletteSwatch = {
@@ -923,11 +939,12 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
+  | SanityImageAssetReference
+  | SeoImage
   | StatementSection
   | CompareSection
   | HighlightsSection
   | BenefitsSection
-  | SanityImageAssetReference
   | SplitSection
   | CtaSection
   | ContactFormSection
@@ -973,7 +990,7 @@ export type AllSanitySchemaTypes =
 
 // Source: ../web/src/sanity/queries.ts
 // Variable: SERVICE_QUERY
-// Query: *[_type == "service" && slug.current == $slug][0]{    _id,    title,    summary,    bullets,    image{ asset, alt },    body,    seoTitle,    seoDescription,      sections[]{    _key,    _type,    _type == "textSection" => { heading, body },    _type == "serviceCardsSection" => {      heading,      intro,      variant,      "services": services[]->{        _id, title, "slug": slug.current, summary, bullets, image{ asset, alt }      }    },    _type == "statsSection" => { heading, items[]{ _key, value, label } },    _type == "packagesSection" => {      heading,      intro,      variant,      note,      "packages": packages[]->{        _id, name, tier, badge, tagline, audience, cardFeatures, priceFrom, priceNote,        detailHeading, detailIntro, responsibilities, youGetIntro,        youGet[]{ _key, title, text },        channels, fitFor, priceLine, priceSuffix,        terms[]{ _key, label, value },        ctaHeading, ctaText, ctaLabel,        pickLabel, pickHeading, pickText, pickBullets      }    },    _type == "stepsSection" => { heading, intro, steps[]{ _key, title, text } },    _type == "phasesSection" => {      heading,      phases[]{ _key, label, title, text, items[]{ _key, title, text } }    },    _type == "timelineSection" => { heading, intro, items[]{ _key, period, title, text } },    _type == "principlesSection" => { heading, intro, items[]{ _key, title, text } },    _type == "testimonialsSection" => {      heading,      "testimonials": testimonials[]->{ _id, quote, author, role, company, featured, "logo": logo.asset->url }    },    _type == "casesSection" => {      heading,      intro,      "cases": cases[]->{        _id, client, title, "slug": slug.current, summary, tags,        metrics[]{ _key, value, label }      }    },    _type == "clientsSection" => {      heading,      "clients": *[_id == "siteSettings"][0].clients[]{ _key, name, "logo": logo.asset->{ url, metadata { dimensions } } }    },    _type == "faqSection" => { heading, items[]{ _key, question, answer } },    _type == "contactSection" => { heading, intro, email, buttonLabel },    _type == "contactFormSection" => {      heading,      intro,      benefitsTitle,      benefits,      topics,      submitLabel,      successTitle,      successText,      showPeople,      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){ _id, name, role, photo{ asset, alt, hotspot, crop } }    },    _type == "teamSection" => {      heading, intro, showContact,      image{ asset, alt, hotspot, crop },      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){        _id, name, role, bio, email, phone, photo{ asset, alt, hotspot, crop }      }    },    _type == "ctaSection" => { heading, intro, tone, checklist, buttonLabel, buttonHref },    _type == "splitSection" => {      heading,      body,      image{ asset, alt },      imageSide,      buttonLabel,      buttonHref    },    _type == "benefitsSection" => { heading, intro, items[]{ _key, title, text } },    _type == "highlightsSection" => { heading, items[]{ _key, title, text } },    _type == "compareSection" => {      heading, intro, withoutTitle, withoutItems, withTitle, withItems    },    _type == "statementSection" => { text, accent }  }  }
+// Query: *[_type == "service" && slug.current == $slug][0]{    _id,    title,    summary,    bullets,    image{ asset, alt },    body,    seoTitle,    seoDescription,    seoImage{ asset },    noIndex,    _updatedAt,      sections[]{    _key,    _type,    _type == "textSection" => { heading, body },    _type == "serviceCardsSection" => {      heading,      intro,      variant,      "services": services[]->{        _id, title, "slug": slug.current, summary, bullets, image{ asset, alt }      }    },    _type == "statsSection" => { heading, items[]{ _key, value, label } },    _type == "packagesSection" => {      heading,      intro,      variant,      note,      "packages": packages[]->{        _id, name, tier, badge, tagline, audience, cardFeatures, priceFrom, priceNote,        detailHeading, detailIntro, responsibilities, youGetIntro,        youGet[]{ _key, title, text },        channels, fitFor, priceLine, priceSuffix,        terms[]{ _key, label, value },        ctaHeading, ctaText, ctaLabel,        pickLabel, pickHeading, pickText, pickBullets      }    },    _type == "stepsSection" => { heading, intro, steps[]{ _key, title, text } },    _type == "phasesSection" => {      heading,      phases[]{ _key, label, title, text, items[]{ _key, title, text } }    },    _type == "timelineSection" => { heading, intro, items[]{ _key, period, title, text } },    _type == "principlesSection" => { heading, intro, items[]{ _key, title, text } },    _type == "testimonialsSection" => {      heading,      "testimonials": testimonials[]->{ _id, quote, author, role, company, featured, "logo": logo.asset->url }    },    _type == "casesSection" => {      heading,      intro,      "cases": cases[]->{        _id, client, title, "slug": slug.current, summary, tags,        metrics[]{ _key, value, label }      }    },    _type == "clientsSection" => {      heading,      "clients": *[_id == "siteSettings"][0].clients[]{ _key, name, "logo": logo.asset->{ url, metadata { dimensions } } }    },    _type == "faqSection" => { heading, items[]{ _key, question, answer } },    _type == "contactSection" => { heading, intro, email, buttonLabel },    _type == "contactFormSection" => {      heading,      intro,      benefitsTitle,      benefits,      topics,      submitLabel,      successTitle,      successText,      showPeople,      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){ _id, name, role, photo{ asset, alt, hotspot, crop } }    },    _type == "teamSection" => {      heading, intro, showContact,      image{ asset, alt, hotspot, crop },      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){        _id, name, role, bio, email, phone, photo{ asset, alt, hotspot, crop }      }    },    _type == "ctaSection" => { heading, intro, tone, checklist, buttonLabel, buttonHref },    _type == "splitSection" => {      heading,      body,      image{ asset, alt },      imageSide,      buttonLabel,      buttonHref    },    _type == "benefitsSection" => { heading, intro, items[]{ _key, title, text } },    _type == "highlightsSection" => { heading, items[]{ _key, title, text } },    _type == "compareSection" => {      heading, intro, withoutTitle, withoutItems, withTitle, withItems    },    _type == "statementSection" => { text, accent }  }  }
 export type SERVICE_QUERY_RESULT = {
   _id: string;
   title: string | null;
@@ -1003,6 +1020,11 @@ export type SERVICE_QUERY_RESULT = {
   }> | null;
   seoTitle: string | null;
   seoDescription: string | null;
+  seoImage: {
+    asset: SanityImageAssetReference | null;
+  } | null;
+  noIndex: boolean | null;
+  _updatedAt: string;
   sections: Array<
     | {
         _key: string;
@@ -1365,7 +1387,7 @@ export type SERVICES_QUERY_RESULT = Array<{
 
 // Source: ../web/src/sanity/queries.ts
 // Variable: PAGE_QUERY
-// Query: *[_type == "page" && slug.current == $slug][0]{    _id,    title,    eyebrow,    heading,    headingAccent,    intro,    badges,    primaryCta,    secondaryCta,    heroImage{ asset, alt },    seoTitle,    seoDescription,      sections[]{    _key,    _type,    _type == "textSection" => { heading, body },    _type == "serviceCardsSection" => {      heading,      intro,      variant,      "services": services[]->{        _id, title, "slug": slug.current, summary, bullets, image{ asset, alt }      }    },    _type == "statsSection" => { heading, items[]{ _key, value, label } },    _type == "packagesSection" => {      heading,      intro,      variant,      note,      "packages": packages[]->{        _id, name, tier, badge, tagline, audience, cardFeatures, priceFrom, priceNote,        detailHeading, detailIntro, responsibilities, youGetIntro,        youGet[]{ _key, title, text },        channels, fitFor, priceLine, priceSuffix,        terms[]{ _key, label, value },        ctaHeading, ctaText, ctaLabel,        pickLabel, pickHeading, pickText, pickBullets      }    },    _type == "stepsSection" => { heading, intro, steps[]{ _key, title, text } },    _type == "phasesSection" => {      heading,      phases[]{ _key, label, title, text, items[]{ _key, title, text } }    },    _type == "timelineSection" => { heading, intro, items[]{ _key, period, title, text } },    _type == "principlesSection" => { heading, intro, items[]{ _key, title, text } },    _type == "testimonialsSection" => {      heading,      "testimonials": testimonials[]->{ _id, quote, author, role, company, featured, "logo": logo.asset->url }    },    _type == "casesSection" => {      heading,      intro,      "cases": cases[]->{        _id, client, title, "slug": slug.current, summary, tags,        metrics[]{ _key, value, label }      }    },    _type == "clientsSection" => {      heading,      "clients": *[_id == "siteSettings"][0].clients[]{ _key, name, "logo": logo.asset->{ url, metadata { dimensions } } }    },    _type == "faqSection" => { heading, items[]{ _key, question, answer } },    _type == "contactSection" => { heading, intro, email, buttonLabel },    _type == "contactFormSection" => {      heading,      intro,      benefitsTitle,      benefits,      topics,      submitLabel,      successTitle,      successText,      showPeople,      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){ _id, name, role, photo{ asset, alt, hotspot, crop } }    },    _type == "teamSection" => {      heading, intro, showContact,      image{ asset, alt, hotspot, crop },      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){        _id, name, role, bio, email, phone, photo{ asset, alt, hotspot, crop }      }    },    _type == "ctaSection" => { heading, intro, tone, checklist, buttonLabel, buttonHref },    _type == "splitSection" => {      heading,      body,      image{ asset, alt },      imageSide,      buttonLabel,      buttonHref    },    _type == "benefitsSection" => { heading, intro, items[]{ _key, title, text } },    _type == "highlightsSection" => { heading, items[]{ _key, title, text } },    _type == "compareSection" => {      heading, intro, withoutTitle, withoutItems, withTitle, withItems    },    _type == "statementSection" => { text, accent }  }  }
+// Query: *[_type == "page" && slug.current == $slug][0]{    _id,    title,    eyebrow,    heading,    headingAccent,    intro,    badges,    primaryCta,    secondaryCta,    heroImage{ asset, alt },    seoTitle,    seoDescription,    seoImage{ asset },    noIndex,      sections[]{    _key,    _type,    _type == "textSection" => { heading, body },    _type == "serviceCardsSection" => {      heading,      intro,      variant,      "services": services[]->{        _id, title, "slug": slug.current, summary, bullets, image{ asset, alt }      }    },    _type == "statsSection" => { heading, items[]{ _key, value, label } },    _type == "packagesSection" => {      heading,      intro,      variant,      note,      "packages": packages[]->{        _id, name, tier, badge, tagline, audience, cardFeatures, priceFrom, priceNote,        detailHeading, detailIntro, responsibilities, youGetIntro,        youGet[]{ _key, title, text },        channels, fitFor, priceLine, priceSuffix,        terms[]{ _key, label, value },        ctaHeading, ctaText, ctaLabel,        pickLabel, pickHeading, pickText, pickBullets      }    },    _type == "stepsSection" => { heading, intro, steps[]{ _key, title, text } },    _type == "phasesSection" => {      heading,      phases[]{ _key, label, title, text, items[]{ _key, title, text } }    },    _type == "timelineSection" => { heading, intro, items[]{ _key, period, title, text } },    _type == "principlesSection" => { heading, intro, items[]{ _key, title, text } },    _type == "testimonialsSection" => {      heading,      "testimonials": testimonials[]->{ _id, quote, author, role, company, featured, "logo": logo.asset->url }    },    _type == "casesSection" => {      heading,      intro,      "cases": cases[]->{        _id, client, title, "slug": slug.current, summary, tags,        metrics[]{ _key, value, label }      }    },    _type == "clientsSection" => {      heading,      "clients": *[_id == "siteSettings"][0].clients[]{ _key, name, "logo": logo.asset->{ url, metadata { dimensions } } }    },    _type == "faqSection" => { heading, items[]{ _key, question, answer } },    _type == "contactSection" => { heading, intro, email, buttonLabel },    _type == "contactFormSection" => {      heading,      intro,      benefitsTitle,      benefits,      topics,      submitLabel,      successTitle,      successText,      showPeople,      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){ _id, name, role, photo{ asset, alt, hotspot, crop } }    },    _type == "teamSection" => {      heading, intro, showContact,      image{ asset, alt, hotspot, crop },      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){        _id, name, role, bio, email, phone, photo{ asset, alt, hotspot, crop }      }    },    _type == "ctaSection" => { heading, intro, tone, checklist, buttonLabel, buttonHref },    _type == "splitSection" => {      heading,      body,      image{ asset, alt },      imageSide,      buttonLabel,      buttonHref    },    _type == "benefitsSection" => { heading, intro, items[]{ _key, title, text } },    _type == "highlightsSection" => { heading, items[]{ _key, title, text } },    _type == "compareSection" => {      heading, intro, withoutTitle, withoutItems, withTitle, withItems    },    _type == "statementSection" => { text, accent }  }  }
 export type PAGE_QUERY_RESULT = {
   _id: string;
   title: string | null;
@@ -1388,6 +1410,10 @@ export type PAGE_QUERY_RESULT = {
   } | null;
   seoTitle: string | null;
   seoDescription: string | null;
+  seoImage: {
+    asset: SanityImageAssetReference | null;
+  } | null;
+  noIndex: boolean | null;
   sections: Array<
     | {
         _key: string;
@@ -1735,7 +1761,7 @@ export type PAGE_QUERY_RESULT = {
 
 // Source: ../web/src/sanity/queries.ts
 // Variable: CASE_QUERY
-// Query: *[_type == "case" && slug.current == $slug][0]{    _id,    client,    title,    subtitle,    summary,    tags,    metrics[]{ _key, value, label },    facts[]{ _key, label, value },    body,    quote{ text, author, role },    seoTitle,    seoDescription  }
+// Query: *[_type == "case" && slug.current == $slug][0]{    _id,    client,    title,    subtitle,    summary,    tags,    metrics[]{ _key, value, label },    facts[]{ _key, label, value },    body,    quote{ text, author, role },    seoTitle,    seoDescription,    seoImage{ asset },    noIndex  }
 export type CASE_QUERY_RESULT = {
   _id: string;
   client: string | null;
@@ -1778,6 +1804,10 @@ export type CASE_QUERY_RESULT = {
   } | null;
   seoTitle: string | null;
   seoDescription: string | null;
+  seoImage: {
+    asset: SanityImageAssetReference | null;
+  } | null;
+  noIndex: boolean | null;
 } | null;
 
 // Source: ../web/src/sanity/queries.ts
@@ -1861,7 +1891,7 @@ export type ARTICLES_QUERY_RESULT = Array<{
 
 // Source: ../web/src/sanity/queries.ts
 // Variable: ARTICLE_QUERY
-// Query: *[_type == "article" && slug.current == $slug][0]{      _id,  title,  "slug": slug.current,  excerpt,  topics,  publishedAt,  heroImage{ asset, alt, hotspot, crop },  "readingMinutes": round(length(pt::text(body)) / 1100),  "author": author->{ name },    keyPoints,    body[]{      ...,      _type == "bodyImage" => { ..., alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions },      markDefs[]{ ..., _type == "link" => { _key, _type, href } }    },    "author": author->{ name, role, bio, photo{ asset, alt, hotspot, crop } },    "services": relatedServices[]->{ _id, title, "slug": slug.current, summary },    "related": *[_type == "article" && slug.current != $slug && defined(slug.current)      && count(topics[@ in ^.topics]) > 0] | order(publishedAt desc)[0...3]{        _id,  title,  "slug": slug.current,  excerpt,  topics,  publishedAt,  heroImage{ asset, alt, hotspot, crop },  "readingMinutes": round(length(pt::text(body)) / 1100),  "author": author->{ name }    },    seoTitle,    seoDescription  }
+// Query: *[_type == "article" && slug.current == $slug][0]{      _id,  title,  "slug": slug.current,  excerpt,  topics,  publishedAt,  heroImage{ asset, alt, hotspot, crop },  "readingMinutes": round(length(pt::text(body)) / 1100),  "author": author->{ name },    keyPoints,    body[]{      ...,      _type == "bodyImage" => { ..., alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions },      markDefs[]{ ..., _type == "link" => { _key, _type, href } }    },    "author": author->{ name, role, bio, photo{ asset, alt, hotspot, crop } },    "services": relatedServices[]->{ _id, title, "slug": slug.current, summary },    "related": *[_type == "article" && slug.current != $slug && defined(slug.current)      && count(topics[@ in ^.topics]) > 0] | order(publishedAt desc)[0...3]{        _id,  title,  "slug": slug.current,  excerpt,  topics,  publishedAt,  heroImage{ asset, alt, hotspot, crop },  "readingMinutes": round(length(pt::text(body)) / 1100),  "author": author->{ name }    },    seoTitle,    seoDescription,    seoImage{ asset },    noIndex,    _updatedAt  }
 export type ARTICLE_QUERY_RESULT = {
   _id: string;
   title: string | null;
@@ -1955,18 +1985,59 @@ export type ARTICLE_QUERY_RESULT = {
   }>;
   seoTitle: string | null;
   seoDescription: string | null;
+  seoImage: {
+    asset: SanityImageAssetReference | null;
+  } | null;
+  noIndex: boolean | null;
+  _updatedAt: string;
 } | null;
+
+// Source: ../web/src/sanity/queries.ts
+// Variable: SITEMAP_QUERY
+// Query: *[_type in ["page", "service", "article", "case"] && defined(slug.current) && noIndex != true]{    _type,    "slug": slug.current,    "updatedAt": _updatedAt  }
+export type SITEMAP_QUERY_RESULT = Array<
+  | {
+      _type: "article";
+      slug: string | null;
+      updatedAt: string;
+    }
+  | {
+      _type: "case";
+      slug: string | null;
+      updatedAt: string;
+    }
+  | {
+      _type: "page";
+      slug: string | null;
+      updatedAt: string;
+    }
+  | {
+      _type: "service";
+      slug: string | null;
+      updatedAt: string;
+    }
+>;
+
+// Source: ../web/src/sanity/queries.ts
+// Variable: PACKAGES_QUERY
+// Query: *[_type == "package"] | order(coalesce(order, 9999) asc){ _id, name }
+export type PACKAGES_QUERY_RESULT = Array<{
+  _id: string;
+  name: string | null;
+}>;
 
 // Query TypeMap
 declare global {
   interface SanityQueries {
-    '\n  *[_type == "service" && slug.current == $slug][0]{\n    _id,\n    title,\n    summary,\n    bullets,\n    image{ asset, alt },\n    body,\n    seoTitle,\n    seoDescription,\n    \n  sections[]{\n    _key,\n    _type,\n    _type == "textSection" => { heading, body },\n    _type == "serviceCardsSection" => {\n      heading,\n      intro,\n      variant,\n      "services": services[]->{\n        _id, title, "slug": slug.current, summary, bullets, image{ asset, alt }\n      }\n    },\n    _type == "statsSection" => { heading, items[]{ _key, value, label } },\n    _type == "packagesSection" => {\n      heading,\n      intro,\n      variant,\n      note,\n      "packages": packages[]->{\n        _id, name, tier, badge, tagline, audience, cardFeatures, priceFrom, priceNote,\n        detailHeading, detailIntro, responsibilities, youGetIntro,\n        youGet[]{ _key, title, text },\n        channels, fitFor, priceLine, priceSuffix,\n        terms[]{ _key, label, value },\n        ctaHeading, ctaText, ctaLabel,\n        pickLabel, pickHeading, pickText, pickBullets\n      }\n    },\n    _type == "stepsSection" => { heading, intro, steps[]{ _key, title, text } },\n    _type == "phasesSection" => {\n      heading,\n      phases[]{ _key, label, title, text, items[]{ _key, title, text } }\n    },\n    _type == "timelineSection" => { heading, intro, items[]{ _key, period, title, text } },\n    _type == "principlesSection" => { heading, intro, items[]{ _key, title, text } },\n    _type == "testimonialsSection" => {\n      heading,\n      "testimonials": testimonials[]->{ _id, quote, author, role, company, featured, "logo": logo.asset->url }\n    },\n    _type == "casesSection" => {\n      heading,\n      intro,\n      "cases": cases[]->{\n        _id, client, title, "slug": slug.current, summary, tags,\n        metrics[]{ _key, value, label }\n      }\n    },\n    _type == "clientsSection" => {\n      heading,\n      "clients": *[_id == "siteSettings"][0].clients[]{ _key, name, "logo": logo.asset->{ url, metadata { dimensions } } }\n    },\n    _type == "faqSection" => { heading, items[]{ _key, question, answer } },\n    _type == "contactSection" => { heading, intro, email, buttonLabel },\n    _type == "contactFormSection" => {\n      heading,\n      intro,\n      benefitsTitle,\n      benefits,\n      topics,\n      submitLabel,\n      successTitle,\n      successText,\n      showPeople,\n      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){ _id, name, role, photo{ asset, alt, hotspot, crop } }\n    },\n    _type == "teamSection" => {\n      heading, intro, showContact,\n      image{ asset, alt, hotspot, crop },\n      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){\n        _id, name, role, bio, email, phone, photo{ asset, alt, hotspot, crop }\n      }\n    },\n    _type == "ctaSection" => { heading, intro, tone, checklist, buttonLabel, buttonHref },\n    _type == "splitSection" => {\n      heading,\n      body,\n      image{ asset, alt },\n      imageSide,\n      buttonLabel,\n      buttonHref\n    },\n    _type == "benefitsSection" => { heading, intro, items[]{ _key, title, text } },\n    _type == "highlightsSection" => { heading, items[]{ _key, title, text } },\n    _type == "compareSection" => {\n      heading, intro, withoutTitle, withoutItems, withTitle, withItems\n    },\n    _type == "statementSection" => { text, accent }\n  }\n\n  }\n': SERVICE_QUERY_RESULT;
+    '\n  *[_type == "service" && slug.current == $slug][0]{\n    _id,\n    title,\n    summary,\n    bullets,\n    image{ asset, alt },\n    body,\n    seoTitle,\n    seoDescription,\n    seoImage{ asset },\n    noIndex,\n    _updatedAt,\n    \n  sections[]{\n    _key,\n    _type,\n    _type == "textSection" => { heading, body },\n    _type == "serviceCardsSection" => {\n      heading,\n      intro,\n      variant,\n      "services": services[]->{\n        _id, title, "slug": slug.current, summary, bullets, image{ asset, alt }\n      }\n    },\n    _type == "statsSection" => { heading, items[]{ _key, value, label } },\n    _type == "packagesSection" => {\n      heading,\n      intro,\n      variant,\n      note,\n      "packages": packages[]->{\n        _id, name, tier, badge, tagline, audience, cardFeatures, priceFrom, priceNote,\n        detailHeading, detailIntro, responsibilities, youGetIntro,\n        youGet[]{ _key, title, text },\n        channels, fitFor, priceLine, priceSuffix,\n        terms[]{ _key, label, value },\n        ctaHeading, ctaText, ctaLabel,\n        pickLabel, pickHeading, pickText, pickBullets\n      }\n    },\n    _type == "stepsSection" => { heading, intro, steps[]{ _key, title, text } },\n    _type == "phasesSection" => {\n      heading,\n      phases[]{ _key, label, title, text, items[]{ _key, title, text } }\n    },\n    _type == "timelineSection" => { heading, intro, items[]{ _key, period, title, text } },\n    _type == "principlesSection" => { heading, intro, items[]{ _key, title, text } },\n    _type == "testimonialsSection" => {\n      heading,\n      "testimonials": testimonials[]->{ _id, quote, author, role, company, featured, "logo": logo.asset->url }\n    },\n    _type == "casesSection" => {\n      heading,\n      intro,\n      "cases": cases[]->{\n        _id, client, title, "slug": slug.current, summary, tags,\n        metrics[]{ _key, value, label }\n      }\n    },\n    _type == "clientsSection" => {\n      heading,\n      "clients": *[_id == "siteSettings"][0].clients[]{ _key, name, "logo": logo.asset->{ url, metadata { dimensions } } }\n    },\n    _type == "faqSection" => { heading, items[]{ _key, question, answer } },\n    _type == "contactSection" => { heading, intro, email, buttonLabel },\n    _type == "contactFormSection" => {\n      heading,\n      intro,\n      benefitsTitle,\n      benefits,\n      topics,\n      submitLabel,\n      successTitle,\n      successText,\n      showPeople,\n      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){ _id, name, role, photo{ asset, alt, hotspot, crop } }\n    },\n    _type == "teamSection" => {\n      heading, intro, showContact,\n      image{ asset, alt, hotspot, crop },\n      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){\n        _id, name, role, bio, email, phone, photo{ asset, alt, hotspot, crop }\n      }\n    },\n    _type == "ctaSection" => { heading, intro, tone, checklist, buttonLabel, buttonHref },\n    _type == "splitSection" => {\n      heading,\n      body,\n      image{ asset, alt },\n      imageSide,\n      buttonLabel,\n      buttonHref\n    },\n    _type == "benefitsSection" => { heading, intro, items[]{ _key, title, text } },\n    _type == "highlightsSection" => { heading, items[]{ _key, title, text } },\n    _type == "compareSection" => {\n      heading, intro, withoutTitle, withoutItems, withTitle, withItems\n    },\n    _type == "statementSection" => { text, accent }\n  }\n\n  }\n': SERVICE_QUERY_RESULT;
     '\n  *[_type == "service" && defined(slug.current)]\n  | order(coalesce(order, 9999) asc, title asc){\n    _id,\n    title,\n    "slug": slug.current,\n    summary,\n    bullets,\n    image{ asset, alt }\n  }\n': SERVICES_QUERY_RESULT;
-    '\n  *[_type == "page" && slug.current == $slug][0]{\n    _id,\n    title,\n    eyebrow,\n    heading,\n    headingAccent,\n    intro,\n    badges,\n    primaryCta,\n    secondaryCta,\n    heroImage{ asset, alt },\n    seoTitle,\n    seoDescription,\n    \n  sections[]{\n    _key,\n    _type,\n    _type == "textSection" => { heading, body },\n    _type == "serviceCardsSection" => {\n      heading,\n      intro,\n      variant,\n      "services": services[]->{\n        _id, title, "slug": slug.current, summary, bullets, image{ asset, alt }\n      }\n    },\n    _type == "statsSection" => { heading, items[]{ _key, value, label } },\n    _type == "packagesSection" => {\n      heading,\n      intro,\n      variant,\n      note,\n      "packages": packages[]->{\n        _id, name, tier, badge, tagline, audience, cardFeatures, priceFrom, priceNote,\n        detailHeading, detailIntro, responsibilities, youGetIntro,\n        youGet[]{ _key, title, text },\n        channels, fitFor, priceLine, priceSuffix,\n        terms[]{ _key, label, value },\n        ctaHeading, ctaText, ctaLabel,\n        pickLabel, pickHeading, pickText, pickBullets\n      }\n    },\n    _type == "stepsSection" => { heading, intro, steps[]{ _key, title, text } },\n    _type == "phasesSection" => {\n      heading,\n      phases[]{ _key, label, title, text, items[]{ _key, title, text } }\n    },\n    _type == "timelineSection" => { heading, intro, items[]{ _key, period, title, text } },\n    _type == "principlesSection" => { heading, intro, items[]{ _key, title, text } },\n    _type == "testimonialsSection" => {\n      heading,\n      "testimonials": testimonials[]->{ _id, quote, author, role, company, featured, "logo": logo.asset->url }\n    },\n    _type == "casesSection" => {\n      heading,\n      intro,\n      "cases": cases[]->{\n        _id, client, title, "slug": slug.current, summary, tags,\n        metrics[]{ _key, value, label }\n      }\n    },\n    _type == "clientsSection" => {\n      heading,\n      "clients": *[_id == "siteSettings"][0].clients[]{ _key, name, "logo": logo.asset->{ url, metadata { dimensions } } }\n    },\n    _type == "faqSection" => { heading, items[]{ _key, question, answer } },\n    _type == "contactSection" => { heading, intro, email, buttonLabel },\n    _type == "contactFormSection" => {\n      heading,\n      intro,\n      benefitsTitle,\n      benefits,\n      topics,\n      submitLabel,\n      successTitle,\n      successText,\n      showPeople,\n      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){ _id, name, role, photo{ asset, alt, hotspot, crop } }\n    },\n    _type == "teamSection" => {\n      heading, intro, showContact,\n      image{ asset, alt, hotspot, crop },\n      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){\n        _id, name, role, bio, email, phone, photo{ asset, alt, hotspot, crop }\n      }\n    },\n    _type == "ctaSection" => { heading, intro, tone, checklist, buttonLabel, buttonHref },\n    _type == "splitSection" => {\n      heading,\n      body,\n      image{ asset, alt },\n      imageSide,\n      buttonLabel,\n      buttonHref\n    },\n    _type == "benefitsSection" => { heading, intro, items[]{ _key, title, text } },\n    _type == "highlightsSection" => { heading, items[]{ _key, title, text } },\n    _type == "compareSection" => {\n      heading, intro, withoutTitle, withoutItems, withTitle, withItems\n    },\n    _type == "statementSection" => { text, accent }\n  }\n\n  }\n': PAGE_QUERY_RESULT;
-    '\n  *[_type == "case" && slug.current == $slug][0]{\n    _id,\n    client,\n    title,\n    subtitle,\n    summary,\n    tags,\n    metrics[]{ _key, value, label },\n    facts[]{ _key, label, value },\n    body,\n    quote{ text, author, role },\n    seoTitle,\n    seoDescription\n  }\n': CASE_QUERY_RESULT;
+    '\n  *[_type == "page" && slug.current == $slug][0]{\n    _id,\n    title,\n    eyebrow,\n    heading,\n    headingAccent,\n    intro,\n    badges,\n    primaryCta,\n    secondaryCta,\n    heroImage{ asset, alt },\n    seoTitle,\n    seoDescription,\n    seoImage{ asset },\n    noIndex,\n    \n  sections[]{\n    _key,\n    _type,\n    _type == "textSection" => { heading, body },\n    _type == "serviceCardsSection" => {\n      heading,\n      intro,\n      variant,\n      "services": services[]->{\n        _id, title, "slug": slug.current, summary, bullets, image{ asset, alt }\n      }\n    },\n    _type == "statsSection" => { heading, items[]{ _key, value, label } },\n    _type == "packagesSection" => {\n      heading,\n      intro,\n      variant,\n      note,\n      "packages": packages[]->{\n        _id, name, tier, badge, tagline, audience, cardFeatures, priceFrom, priceNote,\n        detailHeading, detailIntro, responsibilities, youGetIntro,\n        youGet[]{ _key, title, text },\n        channels, fitFor, priceLine, priceSuffix,\n        terms[]{ _key, label, value },\n        ctaHeading, ctaText, ctaLabel,\n        pickLabel, pickHeading, pickText, pickBullets\n      }\n    },\n    _type == "stepsSection" => { heading, intro, steps[]{ _key, title, text } },\n    _type == "phasesSection" => {\n      heading,\n      phases[]{ _key, label, title, text, items[]{ _key, title, text } }\n    },\n    _type == "timelineSection" => { heading, intro, items[]{ _key, period, title, text } },\n    _type == "principlesSection" => { heading, intro, items[]{ _key, title, text } },\n    _type == "testimonialsSection" => {\n      heading,\n      "testimonials": testimonials[]->{ _id, quote, author, role, company, featured, "logo": logo.asset->url }\n    },\n    _type == "casesSection" => {\n      heading,\n      intro,\n      "cases": cases[]->{\n        _id, client, title, "slug": slug.current, summary, tags,\n        metrics[]{ _key, value, label }\n      }\n    },\n    _type == "clientsSection" => {\n      heading,\n      "clients": *[_id == "siteSettings"][0].clients[]{ _key, name, "logo": logo.asset->{ url, metadata { dimensions } } }\n    },\n    _type == "faqSection" => { heading, items[]{ _key, question, answer } },\n    _type == "contactSection" => { heading, intro, email, buttonLabel },\n    _type == "contactFormSection" => {\n      heading,\n      intro,\n      benefitsTitle,\n      benefits,\n      topics,\n      submitLabel,\n      successTitle,\n      successText,\n      showPeople,\n      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){ _id, name, role, photo{ asset, alt, hotspot, crop } }\n    },\n    _type == "teamSection" => {\n      heading, intro, showContact,\n      image{ asset, alt, hotspot, crop },\n      "people": *[_type == "teamMember"] | order(coalesce(order, 9999) asc){\n        _id, name, role, bio, email, phone, photo{ asset, alt, hotspot, crop }\n      }\n    },\n    _type == "ctaSection" => { heading, intro, tone, checklist, buttonLabel, buttonHref },\n    _type == "splitSection" => {\n      heading,\n      body,\n      image{ asset, alt },\n      imageSide,\n      buttonLabel,\n      buttonHref\n    },\n    _type == "benefitsSection" => { heading, intro, items[]{ _key, title, text } },\n    _type == "highlightsSection" => { heading, items[]{ _key, title, text } },\n    _type == "compareSection" => {\n      heading, intro, withoutTitle, withoutItems, withTitle, withItems\n    },\n    _type == "statementSection" => { text, accent }\n  }\n\n  }\n': PAGE_QUERY_RESULT;
+    '\n  *[_type == "case" && slug.current == $slug][0]{\n    _id,\n    client,\n    title,\n    subtitle,\n    summary,\n    tags,\n    metrics[]{ _key, value, label },\n    facts[]{ _key, label, value },\n    body,\n    quote{ text, author, role },\n    seoTitle,\n    seoDescription,\n    seoImage{ asset },\n    noIndex\n  }\n': CASE_QUERY_RESULT;
     '\n  *[_id == "siteSettings"][0]{\n    tagline,\n    phone,\n    email,\n    linkedin,\n    facebook,\n    offices[]{ _key, city, street, postalCode },\n    clients[]{ _key, name },\n    bannerImage{ asset, alt }\n  }\n': SETTINGS_QUERY_RESULT;
     '\n  *[_type == "article" && defined(slug.current)] | order(publishedAt desc){\n    \n  _id,\n  title,\n  "slug": slug.current,\n  excerpt,\n  topics,\n  publishedAt,\n  heroImage{ asset, alt, hotspot, crop },\n  "readingMinutes": round(length(pt::text(body)) / 1100),\n  "author": author->{ name }\n\n  }\n': ARTICLES_QUERY_RESULT;
-    '\n  *[_type == "article" && slug.current == $slug][0]{\n    \n  _id,\n  title,\n  "slug": slug.current,\n  excerpt,\n  topics,\n  publishedAt,\n  heroImage{ asset, alt, hotspot, crop },\n  "readingMinutes": round(length(pt::text(body)) / 1100),\n  "author": author->{ name }\n,\n    keyPoints,\n    body[]{\n      ...,\n      _type == "bodyImage" => { ..., alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions },\n      markDefs[]{ ..., _type == "link" => { _key, _type, href } }\n    },\n    "author": author->{ name, role, bio, photo{ asset, alt, hotspot, crop } },\n    "services": relatedServices[]->{ _id, title, "slug": slug.current, summary },\n    "related": *[_type == "article" && slug.current != $slug && defined(slug.current)\n      && count(topics[@ in ^.topics]) > 0] | order(publishedAt desc)[0...3]{\n      \n  _id,\n  title,\n  "slug": slug.current,\n  excerpt,\n  topics,\n  publishedAt,\n  heroImage{ asset, alt, hotspot, crop },\n  "readingMinutes": round(length(pt::text(body)) / 1100),\n  "author": author->{ name }\n\n    },\n    seoTitle,\n    seoDescription\n  }\n': ARTICLE_QUERY_RESULT;
+    '\n  *[_type == "article" && slug.current == $slug][0]{\n    \n  _id,\n  title,\n  "slug": slug.current,\n  excerpt,\n  topics,\n  publishedAt,\n  heroImage{ asset, alt, hotspot, crop },\n  "readingMinutes": round(length(pt::text(body)) / 1100),\n  "author": author->{ name }\n,\n    keyPoints,\n    body[]{\n      ...,\n      _type == "bodyImage" => { ..., alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions },\n      markDefs[]{ ..., _type == "link" => { _key, _type, href } }\n    },\n    "author": author->{ name, role, bio, photo{ asset, alt, hotspot, crop } },\n    "services": relatedServices[]->{ _id, title, "slug": slug.current, summary },\n    "related": *[_type == "article" && slug.current != $slug && defined(slug.current)\n      && count(topics[@ in ^.topics]) > 0] | order(publishedAt desc)[0...3]{\n      \n  _id,\n  title,\n  "slug": slug.current,\n  excerpt,\n  topics,\n  publishedAt,\n  heroImage{ asset, alt, hotspot, crop },\n  "readingMinutes": round(length(pt::text(body)) / 1100),\n  "author": author->{ name }\n\n    },\n    seoTitle,\n    seoDescription,\n    seoImage{ asset },\n    noIndex,\n    _updatedAt\n  }\n': ARTICLE_QUERY_RESULT;
+    '\n  *[_type in ["page", "service", "article", "case"] && defined(slug.current) && noIndex != true]{\n    _type,\n    "slug": slug.current,\n    "updatedAt": _updatedAt\n  }\n': SITEMAP_QUERY_RESULT;
+    '\n  *[_type == "package"] | order(coalesce(order, 9999) asc){ _id, name }\n': PACKAGES_QUERY_RESULT;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

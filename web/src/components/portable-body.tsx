@@ -18,6 +18,22 @@ export function PortableBody({ value }: { value: NonNullable<Service["body"]> })
             <h3 className="mb-3 mt-8 text-xl first:mt-0">{children}</h3>
           ),
         },
+        marks: {
+          strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+          link: ({ value, children }) => {
+            const href: string = value?.href ?? "#";
+            const external = /^https?:\/\//.test(href);
+            return (
+              <a
+                href={href}
+                className="underline underline-offset-4 hover:text-lime-ink"
+                {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              >
+                {children}
+              </a>
+            );
+          },
+        },
         list: {
           bullet: ({ children }) => (
             <ul className="mb-5 list-disc space-y-2 pl-6">{children}</ul>

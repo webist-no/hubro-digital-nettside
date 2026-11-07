@@ -12,6 +12,8 @@ import {
   getDynamicFetchOptions,
   published,
 } from "@/sanity/live";
+import { siteUrl } from "@/config/features";
+import { jsonLd, seoMetadata } from "@/lib/seo";
 import { SERVICE_QUERY } from "@/sanity/queries";
 
 export async function generateMetadata(
@@ -24,10 +26,14 @@ export async function generateMetadata(
     ...published,
   });
   if (!data) return {};
-  return {
+  return seoMetadata({
     title: data.seoTitle ?? data.title,
     description: data.seoDescription ?? data.summary,
-  };
+    path: `/tjenester/${slug}`,
+    image: data.seoImage,
+    fallbackImage: data.image,
+    noIndex: data.noIndex,
+  });
 }
 
 export default function ServicePage(props: PageProps<"/tjenester/[slug]">) {
@@ -59,8 +65,31 @@ async function Service({
   const hasSections = Boolean(service.sections?.length);
   const endsWithCta = service.sections?.at(-1)?._type === "ctaSection";
 
+  // Strukturerte data: hva tjenesten er, hvem som leverer den, og hvor siden ligger i menyen.
+  const structured = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: service.title,
+      description: service.summary,
+      url: `${siteUrl}/tjenester/${slug}`,
+      provider: { "@id": `${siteUrl}/#organisasjon` },
+      areaServed: { "@type": "Country", name: "Norge" },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Hjem", item: siteUrl },
+        { "@type": "ListItem", position: 2, name: "Tjenester", item: `${siteUrl}/tjenester` },
+        { "@type": "ListItem", position: 3, name: service.title, item: `${siteUrl}/tjenester/${slug}` },
+      ],
+    },
+  ];
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structured) }} />
       <section className="bg-fog">
         <div className="wrap pb-16 pt-10 md:pb-20">
           <Breadcrumbs

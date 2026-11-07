@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { getServices, getSettings } from "@/sanity/data";
+import { getPackages, getServices, getSettings } from "@/sanity/data";
 
 const heading =
   "mb-3 font-display text-lg font-semibold tracking-[-0.04em] underline underline-offset-4";
 
 export async function Footer() {
-  const [settings, services] = await Promise.all([getSettings(), getServices()]);
+  const [settings, services, packages] = await Promise.all([getSettings(), getServices(), getPackages()]);
 
   return (
     <footer className="bg-ink text-white">
@@ -59,16 +59,21 @@ export async function Footer() {
         <div>
           <p className={heading}>Pakker</p>
           <ul className="space-y-2">
-            {["Start", "Grow", "Scale"].map((tier) => (
-              <li key={tier}>
+            {packages.map((p) => (
+              <li key={p._id}>
                 <Link href="/pakker" className="hover:text-lime">
-                  {tier}
+                  {p.name}
                 </Link>
               </li>
             ))}
           </ul>
           <p className={`${heading} mt-8`}>Lær mer</p>
           <ul className="space-y-2">
+            <li>
+              <Link href="/om-oss" className="hover:text-lime">
+                Om oss
+              </Link>
+            </li>
             <li>
               <Link href="/fagartikler" className="hover:text-lime">
                 Fagartikler
@@ -82,9 +87,9 @@ export async function Footer() {
         <p>© Hubro Digital. Alle rettigheter reservert.</p>
         <ul className="flex flex-wrap gap-x-6 gap-y-2">
           <li>
-            <a href="https://hubrodigital.no/personvern/" className="hover:text-lime">
+            <Link href="/personvern" className="hover:text-lime">
               Personvernerklæring
-            </a>
+            </Link>
           </li>
           {settings?.linkedin && (
             <li>

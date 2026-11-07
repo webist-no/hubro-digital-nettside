@@ -11,6 +11,7 @@ import {
   getDynamicFetchOptions,
   published,
 } from "@/sanity/live";
+import { seoMetadata } from "@/lib/seo";
 import { CASE_QUERY } from "@/sanity/queries";
 
 export async function generateMetadata(
@@ -20,10 +21,13 @@ export async function generateMetadata(
   const { slug } = await props.params;
   const { data } = await cachedSanity({ query: CASE_QUERY, params: { slug }, ...published });
   if (!data) return {};
-  return {
+  return seoMetadata({
     title: data.seoTitle ?? data.title,
     description: data.seoDescription ?? data.summary,
-  };
+    path: `/case/${slug}`,
+    image: data.seoImage,
+    noIndex: data.noIndex,
+  });
 }
 
 export default function CasePage(props: PageProps<"/case/[slug]">) {

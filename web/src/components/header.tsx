@@ -8,6 +8,7 @@ const links = [
   { href: "/prosess", label: "Prosess" },
   { href: "/resultater", label: "Resultater" },
   { href: "/fagartikler", label: "Fagartikler" },
+  { href: "/om-oss", label: "Om oss" },
 ].filter((l) => casesEnabled || l.href !== "/resultater");
 
 export function Header() {

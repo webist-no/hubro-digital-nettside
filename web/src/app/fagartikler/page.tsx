@@ -3,15 +3,17 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { ArticleGrid } from "@/components/article-grid";
 import { CtaBand } from "@/components/cta-band";
+import { seoMetadata } from "@/lib/seo";
 import { cachedSanity, getDynamicFetchOptions } from "@/sanity/live";
 import { toCard } from "@/sanity/articles";
 import { ARTICLES_QUERY } from "@/sanity/queries";
 
-export const metadata: Metadata = {
-  title: "Fagartikler",
+export const metadata: Metadata = seoMetadata({
+  title: "Fagartikler om digital markedsføring",
   description:
     "Fagartikler om annonsering, SEO, sporing og nettsider, skrevet på vanlig norsk av rådgiverne i Hubro Digital.",
-};
+  path: "/fagartikler",
+});
 
 // Rendres ved forespørsel, slik at nye artikler dukker opp med en gang de publiseres.
 async function Articles() {
